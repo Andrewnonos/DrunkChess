@@ -1,21 +1,26 @@
 #ifndef CHESSGAME_H
 #define CHESSGAME_H
-#include <bits/stdc++.h>
+
 #include "Field.h"
 #include "Figure.h"
-
-class Field;
 
 class ChessGame
 {
 private:
+
     bool check;
     bool mate;
-    Field* field;
-    int winner;
+
+
 public:
-    bool step(int from_x, int from_y, int to_x, int to_y, Field &field);
-    bool isEqual(int x1, int x2, int y1, int y2);
+
+    Field field;
+    bool Side_Movement;
+
+    ChessGame(int startWidth, int startHeight, int startBlockedX, int startBlockedY);
+    bool step(int x_pos, int y_pos, int to_x, int to_y);
+    bool first_check();
+
 };
 
 #endif // CHESSGAME_H

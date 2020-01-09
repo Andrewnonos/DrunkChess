@@ -5,10 +5,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QString>
-
 #include "ChessGame.h"
-#include "Field.h"
-#include "Figure.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -24,10 +21,12 @@ public:
     QGridLayout layout;
     QPushButton buttons[5][13];
 
-    Field field_main;
+    ChessGame Game;
+    Figure Null_Class1;
 
     QPushButton * temp_button;
-    QString temp_text ="null";
+    bool temp_text;
+    QIcon temp_icon;
 
     int from_x;
     int from_y;
@@ -35,6 +34,7 @@ public:
     int to_y;
 
     void recycle_temp_text();
+    void redraw();
 
 private:
     Ui::Widget *ui;

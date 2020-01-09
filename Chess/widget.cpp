@@ -1,41 +1,29 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <QDebug>
+#include<QIcon>
+
+#define _PATH C:/Users/Andrewnon/Desktop/Sprites
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::Widget), layout(this), field_main(5, 13, 2, 6)
+    , ui(new Ui::Widget), layout(this), Game(5, 13, 2, 6), Null_Class1(0, 0, false, -1), temp_text(false)
+
 {
     ui->setupUi(this);
+
 
     for (int i = 0; i < 5; i++)
     {
         for (int j = 0; j < 13; j++)
         {
-            buttons[i][j].setText(" ");
-            buttons[i][j].setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-            buttons[i][j].setProperty("text", buttons[i][j].text());
             layout.addWidget(&buttons[i][j], i, j, 1, 1);
 
-           connect(&buttons[i][j], SIGNAL(clicked()), this, SLOT(process_press()));
+            redraw();
+            buttons[i][j].setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            connect(&buttons[i][j], SIGNAL(clicked()), this, SLOT(process_press()));
         }
     }
-    buttons[2][0].setText("King");
-    buttons[2][12].setText("King");
-    buttons[2][2].setText("Rook");
-    buttons[2][3].setText("Rook");
-    buttons[2][9].setText("Rook");
-    buttons[2][10].setText("Rook");
-    buttons[1][1].setText("Knight");
-    buttons[1][11].setText("Knight");
-    buttons[3][1].setText("Knight");
-    buttons[3][11].setText("Knight");
-    buttons[1][2].setText("Horse");
-    buttons[1][10].setText("Horse");
-    buttons[3][2].setText("Horse");
-    buttons[3][10].setText("Horse");
-    buttons[2][6].setText("NULL");
-
 
     this->setLayout(&layout);
     recycle_temp_text();
@@ -46,42 +34,117 @@ Widget::~Widget()
     delete ui;
 }
 
+void Widget::redraw()
+{
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 13; j++)
+        {
+
+            if(Game.field.matrix[i][j] != &Game.field.Null_class){
+                if(Game.field.matrix[i][j]->get_side()){
+                    if(Game.field.matrix[i][j]->get_type() == 0){
+                        buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/White_King.png")));
+                        buttons[i][j].setIconSize(QSize(65, 65));
+                    }
+                    else{
+                        if(Game.field.matrix[i][j]->get_type() == 1){
+                            buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/White_Horse.png")));
+                            buttons[i][j].setIconSize(QSize(65, 65));
+                        }
+                        else{
+                            if(Game.field.matrix[i][j]->get_type() == 2){
+                                buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/White_Knight.png")));
+                                buttons[i][j].setIconSize(QSize(65, 65));
+                            }
+                            else{
+                                if(Game.field.matrix[i][j]->get_type() == 3){
+                                    buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/White_Rook.png")));
+                                    buttons[i][j].setIconSize(QSize(65, 65));
+                                }
+                            }
+                        }
+                    }
+                }
+                else{
+                    if(Game.field.matrix[i][j]->get_type() == 0){
+                        buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/Black_King.png")));
+                        buttons[i][j].setIconSize(QSize(65, 65));
+                    }
+                    else{
+                        if(Game.field.matrix[i][j]->get_type() == 1){
+                            buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/Black_Horse.png")));
+                            buttons[i][j].setIconSize(QSize(65, 65));
+                        }
+                        else{
+                            if(Game.field.matrix[i][j]->get_type() == 2){
+                                buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/Black_Knight.png")));
+                                buttons[i][j].setIconSize(QSize(65, 65));
+                            }
+                            else{
+                                if(Game.field.matrix[i][j]->get_type() == 3){
+                                    buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/Black_Rook.png")));
+                                    buttons[i][j].setIconSize(QSize(65, 65));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else{
+                if(!Game.field.not_blockedXY(i, j)){
+                    buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/BLOCKED.png")));
+                    buttons[i][j].setIconSize(QSize(65, 65));
+                }
+                else{
+                    buttons[i][j].setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/SPACE.png")));
+                    buttons[i][j].setIconSize(QSize(65, 65));
+                }
+            }
+        }
+    }
+}
+
 void Widget::recycle_temp_text()
 {
-    temp_text = "null";
+    temp_text = !temp_text;
 }
 
 void Widget::process_press()
 {
     QPushButton * button = (QPushButton *)sender();
-    if(temp_text == "null"){
-        temp_text = button->text();
+    if(temp_text){
+        temp_text = !temp_text;
         temp_button = button;
+        temp_icon = QIcon(button->icon());
     }
     else{
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < 5; i++){
             for(int j = 0; j < 13; j++){
-                if(button == &buttons[i][j]){
+                if(temp_button == &buttons[i][j]){
                     from_x = i;
                     from_y = j;
                 }
-                else if(temp_button == &buttons[i][j]){
+                else if(button == &buttons[i][j]){
                     to_x = i;
                     to_y = j;
                 }
             }
-        if ((to_x == field_main.get_blockedX() && to_y == field_main.get_blockedY())
-                || to_x > field_main.get_width() || to_y > field_main.get_height())
+        }
+        if(!Game.step(from_x, from_y, to_x, to_y) || Game.field.matrix[from_x][from_y] == &Game.field.Null_class)
         {
             recycle_temp_text();
         }
         else
         {
-            field_main.Figures[to_x][to_y] = field_main.Figures[from_x][from_y];
-            field_main.Figures[from_x][from_y] = NULL;
-            temp_button->setText(" ");
-            button->setText(temp_text);
+            Game.field.matrix[to_x][to_y] = Game.field.matrix[from_x][from_y];
+            Game.field.matrix[from_x][from_y] = &Game.field.Null_class;
+            temp_button->setIcon(QIcon(QPixmap("C:/Users/Andrewnon/Desktop/Sprites/SPACE.png")));
+            temp_button->setIconSize(QSize(65, 65));
+            button->setIcon(temp_icon);
+            button->setIconSize(QSize(65, 65));
             recycle_temp_text();
+            redraw();
         }
     }
 }

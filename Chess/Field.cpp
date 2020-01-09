@@ -1,133 +1,75 @@
-#include <bits/stdc++.h>
 #include "Field.h"
-#include "Figure.h"
-#include "ChessGame.h"
-#define Horse 0
-#define Elephant 1
-#define Rook 2
-#define King 3
+
+#define R_Horse 0
+#define R_Elephant 1
+#define R_Rook 2
+#define R_King 3
 
 Field::Field(int startWidth, int startHeight, int startBlockedX, int startBlockedY):
-    width(startWidth), height(startHeight), blockedX(startBlockedX), blockedY(startBlockedY)
-{
-    Figure BLack_King(2, 0, false, 3);
-    Figure Black_Rook1(2, 2, false, 2);
-    Figure BLack_Rook2(2, 3, false, 2);
-    Figure BLack_Knight1(1, 1, false, 1);
-    Figure BLack_Knight2(3, 1, false, 1);
-    Figure BLack_Horse1(1, 2, false, 0);
-    Figure BLack_Horse2(3, 2, false, 0);
+    width(startWidth), height(startHeight), blockedX(startBlockedX), blockedY(startBlockedY),
 
-    Figure White_King(2, 12, true, 3);
-    Figure White_Rook1(2, 9, true, 2);
-    Figure White_Rook2(2, 10, true, 2);
-    Figure White_Knight1(1, 11, true, 1);
-    Figure White_Knight2(3, 11, true, 1);
-    Figure White_Horse1(1, 10, true, 0);
-    Figure White_Horse2(3, 10, true, 0);
-}
-int Field::get_width()
-{
-    return width;
-}
-int Field::get_height()
-{
-    return height;
-}
-int Field::get_blockedX()
-{
-    return blockedX;
-}
-int Field::get_blockedY()
-{
-    return blockedY;
-}
-int Field::get_type()
-{
-    return type;
-}
-int Field::checkX()
-{
-    return x;
-}
-int Field::checkY()
-{
-    return y;
-}
-bool Field::updateCheck()
-{
-    for (int i = 0; i < (int)Figures.size() - 1; i++) {
-        int CoordinateKingX, CoordinateKingY;
-        if (i == King)
-        {
-            CoordinateKingX = checkX();
-            CoordinateKingY = checkY();
-            return false;
-        }
-        if (i == Horse)
-        {
-            if (abs(CoordinateKingX - x) == 1 && abs(CoordinateKingY - y) == 2)
-            {
-                return true;
-            }
-            else if (abs(CoordinateKingX - x) == 2 && abs(CoordinateKingY - y) == 1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        if (i == Elephant)
-        {
-            if (abs(CoordinateKingX - x) == abs(CoordinateKingY - y))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        if (i == Rook)
-        {
-            if (x == CoordinateKingX || y == CoordinateKingY)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-   }
-}
-bool Field::updateMate()
-{
-    Field temp_field = *this;
-    updateCheck();
-    if (updateCheck())
-    {
-        for(int i = 0; i < (int)Figures.size(); i++) {
-            for (int j = 0; j < (int)Figures.size(); j++)
-            {
+    Null_class(0, 0, false, -1),
 
-                Figures[i][j]->moving(x, y, temp_field);
-                updateCheck();
-                if(updateCheck())
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
+    side_move(true),
+
+    BLack_King(2, 12, false, 0),
+    Black_Rook1(2, 9, false, 3),
+    Black_Rook2(2, 10, false, 3),
+    Black_Knight1(1, 11, false, 2),
+    Black_Knight2(3, 11, false, 2),
+    Black_Horse1(1, 10, false, 1),
+    Black_Horse2(3, 10, false, 1),
+
+    White_King(2, 0, true, 0),
+    White_Rook1(2, 2, true, 3),
+    White_Rook2(2, 3, true, 3),
+    White_Knight1(1, 1, true, 2),
+    White_Knight2(3, 1, true, 2),
+    White_Horse1(1, 2, true, 1),
+    White_Horse2(3, 2, true, 1)
+
+{
+
+    std::vector<Figure*> temp_matrx(height);
+
+    for(int i = 0; i < height; i++){
+        temp_matrx[i] = &Null_class;
     }
-    else
-    {
+
+    for(int i = 0; i < width; i++){
+        matrix.push_back(temp_matrx);
+    }
+
+
+    matrix[2][12] = &BLack_King;
+    matrix[2][9] = &Black_Rook1;
+    matrix[2][10] = &Black_Rook2;
+    matrix[1][11] = &Black_Knight1;
+    matrix[3][11] = &Black_Knight2;
+    matrix[1][10] = &Black_Horse1;
+    matrix[3][10] = &Black_Horse2;
+
+    matrix[2][0] = &White_King;
+    matrix[2][2] = &White_Rook1;
+    matrix[2][3] = &White_Rook2;
+    matrix[1][1] = &White_Knight1;
+    matrix[3][1] = &White_Knight2;
+    matrix[1][2] = &White_Horse1;
+    matrix[3][2] = &White_Horse2;
+}
+
+bool Field::not_blockedXY(int to_x, int to_y){
+    if(to_x == blockedX && to_y == blockedY)
         return false;
-    }
+    else
+        return true;
+}
+bool Field::enemy_side(int to_x, int to_y, int x_pos, int y_pos){
+    if(matrix[to_x][to_y] != &Null_class)
+        if(matrix[to_x][to_y]->get_side() != matrix[x_pos][y_pos]->get_side())
+            return true;
+        else
+            return false;
+    else
+        return true;
 }
